@@ -1,0 +1,55 @@
+version: 1
+disable_existing_loggers: True
+
+formatters:
+  brief:
+    format: "{asctime}[{levelname}][app={name}]{extra}  - {message}"
+    datefmt: "%Y-%m-%d %H:%M:%S"
+  filelog:
+    format: "{asctime}[{levelname}][app={name}][pid={process}]{extra}  - {message}"
+    datefmt: "%Y-%m-%d %H:%M:%S"
+
+filters:
+  context:
+    (): ntlog.NTFilter
+    prefix:
+      - env
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: brief
+    stream: ext://sys.stdout
+    filters: [context]
+
+  filelog:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: INFO
+    formatter: filelog
+    filename: myapp.log
+    filters: [context]
+    when: H
+    interval: 1
+    backupCount: 72
+    filename: share/logs/nice_test.log
+
+loggers:
+  nice_test:
+    level: DEBUG
+    handlers: [console, filelog]
+    propagate: no
+
+  staging:
+    level: INFO
+    handlers: [filelog]
+    propagate: no
+
+  production:
+    level: WARNING
+    handlers: [filelog]
+    propagate: no
+
+root:
+  level: INFOR
+  handlers: [filelog]
